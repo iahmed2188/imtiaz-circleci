@@ -35,7 +35,7 @@ jobs:
             set +eo pipefail
             docker pull  PARAMETERS.IMAGE 
             printf "\nAttemping image scan with auth from cache\n"
-            /wizcli/WIZ_ENV=test wizcli docker scan --image  PARAMETERS.IMAGE  --policy " PARAMETERS.POLICY "
+            WIZ_ENV=test wizcli docker scan --image  PARAMETERS.IMAGE  --policy " PARAMETERS.POLICY "
             exitCode=$?
             if [ $exitCode -eq 3 ]; then
               # Time to authenticate!
