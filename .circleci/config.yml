@@ -20,7 +20,7 @@ jobs:
           name: Download wizcli
           command: |
             sudo curl -o wizcli https://wizcli.test.wiz.io/wizcli
-            sudo chmod +x /wizcli
+            sudo chmod +x wizcli
       # Log the scan time
       - run: date +%F > date
       # Step to restore authentication cache and re-use if exists
