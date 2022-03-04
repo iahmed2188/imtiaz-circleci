@@ -18,7 +18,7 @@ jobs:
       # Step to pull Dockerfile from git and build it for image scan
       - run:
           name: Build Image
-          command: docker build -t << pipeline.parameters.image >> .
+          command: docker build -t pipeline.parameters.image .
       # Step to download WizCLI from the inter-webs
       - run:
           
@@ -39,14 +39,14 @@ jobs:
           command: |
             set +eo pipefail
             printf "\nAttemping image scan with auth from cache\n"
-            WIZ_ENV=demo /wizcli/wizcli docker scan --image  << pipeline.parameters.image >>  --policy " parameters.policy "
+            WIZ_ENV=demo /wizcli/wizcli docker scan --image  pipeline.parameters.image  --policy  pipeline.parameters.policy 
             exitCode=$?
             if [ $exitCode -eq 3 ]; then
               # Time to authenticate!
               printf "\nCould not authenticate from cache, auth-ing and running the scan\n"
               # ${WIZCLI_ID_DEMO} and ${WIZCLI_SECRET_DEMO} are variables you declared in step 2c
               WIZ_ENV=demo /wizcli/wizcli auth --id ${WIZCLI_ID_DEMO} --secret ${WIZCLI_SECRET_DEMO}
-              WIZ_ENV=demo /wizcli/wizcli docker scan --image << pipeline.parameters.image >>
+              WIZ_ENV=demo /wizcli/wizcli docker scan --image pipeline.parameters.image
               exitCode=$?
             fi
             exit $exitCode
