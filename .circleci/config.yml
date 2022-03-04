@@ -24,18 +24,12 @@ jobs:
           name: Scan Docker image
           command: |
             set +eo pipefail
-            printf "\nAttemping image scan with auth from cache\n"
-            WIZ_ENV=demo /wizcli/wizcli docker scan --image  nginx:latest  --policy  "Wiz policy"
+            # Time to authenticate!
+            printf "Authenticating to wizcli :-)"
+            # ${WIZCLI_ID_DEMO} and ${WIZCLI_SECRET_DEMO} are variables you declared in step 2c
+            WIZ_ENV=demo /wizcli/wizcli auth --id ${WIZCLI_ID_DEMO} --secret ${WIZCLI_SECRET_DEMO}
+            WIZ_ENV=demo /wizcli/wizcli docker scan --image nginx:latest
             exitCode=$?
-            if [ $exitCode -eq 3 ]; then
-              # Time to authenticate!
-              printf "\nCould not authenticate from cache, auth-ing and running the scan\n"
-              # ${WIZCLI_ID_DEMO} and ${WIZCLI_SECRET_DEMO} are variables you declared in step 2c
-              WIZ_ENV=demo /wizcli/wizcli auth --id ${WIZCLI_ID_DEMO} --secret ${WIZCLI_SECRET_DEMO}
-              WIZ_ENV=demo /wizcli/wizcli docker scan --image nginx:latest
-              exitCode=$?
-            fi
-            exit $exitCode
      
 
 # In your workflow, make sure to trigger the wizcli_scan job you just declared above (it can trigger after a docker_build job):
