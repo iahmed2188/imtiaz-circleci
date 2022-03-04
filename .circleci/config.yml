@@ -20,7 +20,7 @@ jobs:
           name: Download wizcli
           command: |
             sudo mkdir -p /wizcli
-            sudo curl -o wizcli https://wizcli.app.wiz.io/wizcli
+            sudo curl -o wizcli https://wizcli.test.wiz.io/wizcli
             sudo chmod +x /wizcli/wizcli
       # Log the scan time
       - run: date +%F > date
@@ -35,14 +35,14 @@ jobs:
             set +eo pipefail
             docker pull  PARAMETERS.IMAGE 
             printf "\nAttemping image scan with auth from cache\n"
-            /wizcli/wizcli docker scan --image  PARAMETERS.IMAGE  --policy " PARAMETERS.POLICY "
+            /wizcli/WIZ_ENV=test wizcli docker scan --image  PARAMETERS.IMAGE  --policy " PARAMETERS.POLICY "
             exitCode=$?
             if [ $exitCode -eq 3 ]; then
               # Time to authenticate!
               printf "\nCould not authenticate from cache, auth-ing and running the scan\n"
               # ${WIZCLI_ID} and ${WIZCLI_SECRET} are variables you declared in step 2c
-              /wizcli/wizcli auth --id ${WIZCLI_ID} --secret ${WIZCLI_SECRET}
-              /wizcli/wizcli docker scan --image  PARAMETERS.IMAGE  --policy " PARAMETERS.POLICY "
+              /wizcli/WIZ_ENV=test wizcli auth --id ${WIZCLI_ID} --secret ${WIZCLI_SECRET}
+              /wizcli/WIZ_ENV=test wizcli docker scan --image  PARAMETERS.IMAGE  --policy " PARAMETERS.POLICY "
               exitCode=$?
             fi
             exit $exitCode
