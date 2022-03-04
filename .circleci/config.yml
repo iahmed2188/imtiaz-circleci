@@ -7,7 +7,7 @@ jobs:
           type: string
           # this example will use a pre-built image, with nginx set as the deafult.
           # the example can be modified to run post a build step, instead of pulling
-          default: "nginx:latest"
+          default: "mongo"
         policy:
           type: string
           # Wiz CI policy name to be used.
@@ -19,8 +19,9 @@ jobs:
       - run:
           name: Download wizcli
           command: |
-            sudo curl -o wizcli https://wizcli.test.wiz.io/wizcli
-            sudo chmod +x wizcli
+            sudo mkdir -p /wizcli
+            sudo curl -o /wizcli/wizcli https://wizcli.app.wiz.io/wizcli
+            sudo chmod +x /wizcli/wizcli
       # Log the scan time
       - run: date +%F > date
       # Step to restore authentication cache and re-use if exists
@@ -32,16 +33,16 @@ jobs:
           name: Scan Docker image
           command: |
             set +eo pipefail
-            docker pull  PARAMETERS.IMAGE 
+            sudo docker pull nginx:latest
             printf "\nAttemping image scan with auth from cache\n"
-            WIZ_ENV=test wizcli docker scan --image  PARAMETERS.IMAGE  --policy " PARAMETERS.POLICY "
+            /wizcli/wizcli docker scan --image  parameters.image  --policy " parameters.policy "
             exitCode=$?
             if [ $exitCode -eq 3 ]; then
               # Time to authenticate!
               printf "\nCould not authenticate from cache, auth-ing and running the scan\n"
               # ${WIZCLI_ID} and ${WIZCLI_SECRET} are variables you declared in step 2c
-              WIZ_ENV=test wizcli auth --id ${WIZCLI_ID} --secret ${WIZCLI_SECRET}
-              WIZ_ENV=test wizcli docker scan --image  PARAMETERS.IMAGE  --policy " PARAMETERS.POLICY "
+              WIZ_ENV=test /wizcli/wizcli auth --id ${WIZCLI_ID} --secret ${WIZCLI_SECRET}
+              WIZ_ENV=test /wizcli/wizcli docker scan --image nginx:latest
               exitCode=$?
             fi
             exit $exitCode
