@@ -15,11 +15,9 @@ jobs:
     steps:
       # Running the built-in checkout script to checkout the code in this repo
       - checkout
-      - build
-        docker_build:
-        stage: build
-        script:
-        - docker build -t parameters.image .
+      - run:
+        name: Build Image
+        command: docker build -t parameters.image .
       # Step to download WizCLI from the inter-webs
       - run:
           
