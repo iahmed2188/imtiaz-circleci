@@ -20,13 +20,6 @@ jobs:
             sudo mkdir -p /wizcli
             sudo curl -o /wizcli/wizcli https://wizcli.app.wiz.io/wizcli
             sudo chmod +x /wizcli/wizcli
-      # Log the scan time
-      - run: date +%F > date
-      # Step to restore authentication cache and re-use if exists
-      - restore_cache:
-          key: wizcli-{{ .Environment.WIZCLI_ID }}-{{ checksum "date" }}
-      # Attempt a scan from cache, then try to authenticate if not available
-      # docker pull is attemped, but the example can be converted to trigger right after a build step instead
       - run:
           name: Scan Docker image
           command: |
@@ -43,11 +36,7 @@ jobs:
               exitCode=$?
             fi
             exit $exitCode
-      # Save auth cache for next time
-      - save_cache:
-          key: wizcli-{{ .Environment.WIZCLI_ID }}-{{ checksum "date" }}
-          paths:
-            - ~/.wiz/auth.json   
+     
 
 # In your workflow, make sure to trigger the wizcli_scan job you just declared above (it can trigger after a docker_build job):
 workflows:
