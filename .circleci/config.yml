@@ -1,10 +1,12 @@
+env:
+  IMAGE: "nginx:latest" 
+  POLICY: "Wiz policy"
+
 jobs:
   wizcli_scan:
     machine: true
     working_directory: ~/app
-    env:
-        IMAGE: "nginx:latest" 
-        POLICY: "Wiz policy"
+    
         
     steps:
       # Running the built-in checkout script to checkout the code in this repo
