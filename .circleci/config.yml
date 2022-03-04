@@ -1,26 +1,60 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/2.0/configuration-reference
-version: 2.1
-
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  say-hello:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
-    docker:
-      - image: cimg/base:stable
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+  wizcli_scan:
+    machine: true
+    working_directory: ~/app
+    parameters:
+        image:
+          type: string
+          # this example will use a pre-built image, with nginx set as the deafult.
+          # the example can be modified to run post a build step, instead of pulling
+          default: "nginx:latest"
+        policy:
+          type: string
+          # Wiz CI policy name to be used.
+          default: "Wiz policy"
     steps:
+      # Running the built-in checkout script to checkout the code in this repo
       - checkout
+      # Step to download WizCLI from the inter-webs
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+          name: Download wizcli
+          command: |
+            sudo mkdir -p /wizcli
+            sudo curl -o wizcli https://wizcli.app.wiz.io/wizcli
+            sudo chmod +x /wizcli/wizcli
+      # Log the scan time
+      - run: date +%F > date
+      # Step to restore authentication cache and re-use if exists
+      - restore_cache:
+          key: wizcli-{{ .Environment.WIZCLI_ID }}-{{ checksum "date" }}
+      # Attempt a scan from cache, then try to authenticate if not available
+      # docker pull is attemped, but the example can be converted to trigger right after a build step instead
+      - run:
+          name: Scan Docker image
+          command: |
+            set +eo pipefail
+            docker pull  PARAMETERS.IMAGE 
+            printf "\nAttemping image scan with auth from cache\n"
+            /wizcli/wizcli docker scan --image  PARAMETERS.IMAGE  --policy " PARAMETERS.POLICY "
+            exitCode=$?
+            if [ $exitCode -eq 3 ]; then
+              # Time to authenticate!
+              printf "\nCould not authenticate from cache, auth-ing and running the scan\n"
+              # ${WIZCLI_ID} and ${WIZCLI_SECRET} are variables you declared in step 2c
+              /wizcli/wizcli auth --id ${WIZCLI_ID} --secret ${WIZCLI_SECRET}
+              /wizcli/wizcli docker scan --image  PARAMETERS.IMAGE  --policy " PARAMETERS.POLICY "
+              exitCode=$?
+            fi
+            exit $exitCode
+      # Save auth cache for next time
+      - save_cache:
+          key: wizcli-{{ .Environment.WIZCLI_ID }}-{{ checksum "date" }}
+          paths:
+            - ~/.wiz/auth.json   
 
-# Invoke jobs via workflows
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+# In your workflow, make sure to trigger the wizcli_scan job you just declared above (it can trigger after a docker_build job):
 workflows:
-  say-hello-workflow:
+  version: 2
+  build_workflow:
     jobs:
-      - say-hello
+      - wizcli_scan
