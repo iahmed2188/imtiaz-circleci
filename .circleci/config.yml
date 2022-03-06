@@ -26,9 +26,9 @@ jobs:
             set +eo pipefail
             # Time to authenticate!
             printf "Authenticating to wizcli :-)"
-            # ${WIZCLI_ID_DEMO} and ${WIZCLI_SECRET_DEMO} are variables you declared in step 2c
-            WIZ_ENV=demo /wizcli/wizcli auth --id ${WIZCLI_ID_DEMO} --secret ${WIZCLI_SECRET_DEMO}
-            WIZ_ENV=demo /wizcli/wizcli docker scan --image nginx:latest
+            # ${WIZCLI_ID} and ${WIZCLI_SECRET} are variables you declared in step 2c
+            WIZ_ENV=test /wizcli/wizcli auth --id ${WIZCLI_ID} --secret ${WIZCLI_SECRET}
+            WIZ_ENV=test /wizcli/wizcli docker scan --image nginx:latest
             exitCode=$?
      
 
