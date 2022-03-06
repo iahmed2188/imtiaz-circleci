@@ -40,7 +40,7 @@ jobs:
             # WIZ_ENV=test /wizcli/wizcli auth --id ${WIZCLI_ID_DEMO} --secret ${WIZCLI_SECRET_DEMO}
             WIZ_ENV=test /wizcli/wizcli iac scan --path CreateEC2.yml
             exitCode=$?
-  - aws-ecr/build-and-push-image:
+  aws-ecr/build-and-push-image:
     printf "Uploading image to AWS ECR"
     account-url: ${AWS_ECR_ACCOUNT_URL}
     aws-access-key-id: ${AWS_ACCESS_KEY_ID}
