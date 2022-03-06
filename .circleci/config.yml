@@ -40,20 +40,6 @@ jobs:
             # WIZ_ENV=test /wizcli/wizcli auth --id ${WIZCLI_ID_DEMO} --secret ${WIZCLI_SECRET_DEMO}
             WIZ_ENV=test /wizcli/wizcli iac scan --path CreateEC2.yml
             exitCode=$?
-  aws-ecr/build-and-push-image:
-    printf "Uploading image to AWS ECR"
-    account-url: ${AWS_ECR_ACCOUNT_URL}
-    aws-access-key-id: ${AWS_ACCESS_KEY_ID}
-    aws-secret-access-key: ${AWS_SECRET_ACCESS_KEY}
-    create-repo: false
-    dockerfile: Dockerfile
-    path: .
-    region: ${AWS_REGION}
-    repo: imtiazrepo1
-    tag: imtiazLatest
-    exitCode=$?
-            
-     
 
 orbs:
   aws-ecr: circleci/aws-ecr@6.7.0
@@ -63,3 +49,16 @@ workflows:
   build_workflow:
     jobs:
       - wizcli_scan
+  build_and_push_image:
+    jobs:
+      - aws-ecr/build-and-push-image:
+          printf "Uploading image to AWS ECR"
+          account-url: ${AWS_ECR_ACCOUNT_URL}
+          aws-access-key-id: ${AWS_ACCESS_KEY_ID}
+          aws-secret-access-key: ${AWS_SECRET_ACCESS_KEY}
+          create-repo: true
+          dockerfile: Dockerfile
+          path: .
+          region: ${AWS_REGION}
+          repo: imtiazrepo1
+          tag: imtiazLatest
