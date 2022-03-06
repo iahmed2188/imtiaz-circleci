@@ -30,7 +30,7 @@ jobs:
             sudo chmod +x /awscli/awscli
             sudo aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}
             sudo aws configure set aws_secret_access_key ${AS_SECRET_KEY_ID}
-            aws configure set default.region ${AWS_REGION}
+            sudo aws configure set default.region ${AWS_REGION}
       - run:
           name: Scan Docker image
           command: |
@@ -54,11 +54,9 @@ jobs:
       run:
           name: Upload to ECR
           command: |
-            set +eo pipefail
             printf "Uploading docker image to Amazon ECR"
             aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ECR_ACCOUNT_URL}
             docker push ${AWS_ECR_ACCOUNT_URL}:UPLOADED
-            exitCode=$?
 
 # In your workflow, make sure to trigger the wizcli_scan job you just declared above (it can trigger after a docker_build job):
 workflows:
