@@ -14,12 +14,23 @@ jobs:
           command: docker build -t nginx:latest .
       # Step to download WizCLI from the inter-webs
       - run:
-          
           name: Download wizcli
           command: |
             sudo mkdir -p /wizcli
             sudo curl -o /wizcli/wizcli https://wizcli.app.wiz.io/wizcli
             sudo chmod +x /wizcli/wizcli
+      # Step to download awscli from the inter-webs
+      run:
+          name: Download awscli
+          command: |
+            sudo mkdir -p /awscli
+            sudo curl -o /awscli/awscli.zip https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+            sudo unzip awscli.zip
+            sudo ./aws/install
+            sudo chmod +x /awscli/awscli
+            sudo aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}
+            sudo aws configure set aws_secret_access_key ${AS_SECRET_KEY_ID}
+            aws configure set default.region ${AWS_REGION}
       - run:
           name: Scan Docker image
           command: |
@@ -40,25 +51,18 @@ jobs:
             # WIZ_ENV=test /wizcli/wizcli auth --id ${WIZCLI_ID_DEMO} --secret ${WIZCLI_SECRET_DEMO}
             WIZ_ENV=test /wizcli/wizcli iac scan --path CreateEC2.yml
             exitCode=$?
+      run:
+          name: Upload to ECR
+          command: |
+            set +eo pipefail
+            printf "Uploading docker image to Amazon ECR"
+            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ECR_ACCOUNT_URL}
+            docker push ${AWS_ECR_ACCOUNT_URL}:UPLOADED
+            exitCode=$?
 
-orbs:
-  aws-ecr: circleci/aws-ecr@6.7.0
 # In your workflow, make sure to trigger the wizcli_scan job you just declared above (it can trigger after a docker_build job):
 workflows:
   version: 2
   build_workflow:
     jobs:
       - wizcli_scan
-  build_and_push_image:
-    jobs:
-      - aws-ecr/build-and-push-image:
-          printf "Uploading image to AWS ECR"
-          account-url: ${AWS_ECR_ACCOUNT_URL}
-          aws-access-key-id: ${AWS_ACCESS_KEY_ID}
-          aws-secret-access-key: ${AWS_SECRET_ACCESS_KEY}
-          create-repo: true
-          dockerfile: Dockerfile
-          path: .
-          region: ${AWS_REGION}
-          repo: imtiazrepo1
-          tag: imtiazLatest
