@@ -3,7 +3,7 @@ jobs:
     machine: true
     working_directory: ~/app
     
-        
+      # This script is configured to work on test
     steps:
       # Running the built-in checkout script to checkout the code in this repo
       - checkout
@@ -25,7 +25,7 @@ jobs:
           command: |
             set +eo pipefail
             # Time to authenticate!
-            printf "Authenticating to wizcli :-)"
+            printf "Authenticating to wizcli"
             # ${WIZCLI_ID} and ${WIZCLI_SECRET} are variables you declared in step 2c
             WIZ_ENV=test /wizcli/wizcli auth --id ${WIZCLI_ID} --secret ${WIZCLI_SECRET}
             WIZ_ENV=test /wizcli/wizcli docker scan --image nginx:latest
@@ -40,7 +40,26 @@ jobs:
             # WIZ_ENV=test /wizcli/wizcli auth --id ${WIZCLI_ID_DEMO} --secret ${WIZCLI_SECRET_DEMO}
             WIZ_ENV=test /wizcli/wizcli iac scan --path CreateEC2.yml
             exitCode=$?
+      - run:
+          name: Upload Image to ECR
+          command: |
+            set +eo pipefail
+            # Skipping auth since it occured in previous step
+            printf "Uploading image to AWS ECR"
+            account-url: ${AWS_ECR_ACCOUNT_URL}
+            aws-access-key-id: ${AWS_ACCESS_KEY_ID}
+            aws-secret-access-key: ${AWS_SECRET_ACCESS_KEY}
+            create-repo: false
+            dockerfile: Dockerfile
+            path: .
+            region: ${AWS_REGION}
+            repo: imtiazrepo1
+            tag: "$CIRCLE_SHA1"
+            exitCode=$?
+     
 
+orbs:
+  aws-ecr: circleci/aws-ecr@6.7.0
 # In your workflow, make sure to trigger the wizcli_scan job you just declared above (it can trigger after a docker_build job):
 workflows:
   version: 2
