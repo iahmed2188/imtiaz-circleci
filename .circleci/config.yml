@@ -62,8 +62,8 @@ workflows:
   test-build:
      jobs:
         - aws-ecr/build-and-push-image
-          account-url: "${AWS_ECR_ACCOUNT_URL}"
-          repo: "${AWS_RESOURCE_NAME_PREFIX}"
+          account-url: ${AWS_ECR_ACCOUNT_URL}
+          repo: ${AWS_RESOURCE_NAME_PREFIX}
           region: ${AWS_DEFAULT_REGION}
 
 # In your workflow, make sure to trigger the wizcli_scan job you just declared above (it can trigger after a docker_build job):
