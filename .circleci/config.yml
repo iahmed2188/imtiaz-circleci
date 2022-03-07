@@ -32,7 +32,7 @@ workflows:
               sudo curl -o /wizcli/wizcli https://wizcli.app.wiz.io/wizcli
               sudo chmod +x /wizcli/wizcli
         # Step to download awscli from the inter-webs
-        run:
+        - run:
             name: Download awscli
             command: |
               sudo mkdir -p /awscli
