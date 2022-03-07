@@ -62,7 +62,7 @@ workflows:
   test-build:
      jobs:
         - aws-ecr/build-and-push-image
-          account-url: "603863507710.dkr.ecr.us-east-2.amazonaws.com"
+          account-url: 603863507710.dkr.ecr.us-east-2.amazonaws.com
           repo: "imtiazrepo1"
           region: "us-east-2"
 
