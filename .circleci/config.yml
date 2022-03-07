@@ -58,11 +58,11 @@ orbs:
               WIZ_ENV=test /wizcli/wizcli iac scan --path CreateEC2.yml
               exitCode=$?
 workflows:
-  version: 2
+  version: 2.1
   test-build:
      jobs:
         - aws-ecr/build-and-push-image
-          account-url: 603863507710.dkr.ecr.us-east-2.amazonaws.com
+          account-url: "603863507710.dkr.ecr.us-east-2.amazonaws.com"
           repo: "imtiazrepo1"
           region: "us-east-2"
 
