@@ -53,8 +53,8 @@ orbs:
               set +eo pipefail
               # Skipping auth since it occured in previous step
               printf "Scanning Infrastructure as Code Template"
-              # ${WIZCLI_ID_DEMO} and ${WIZCLI_SECRET_DEMO} are variables you declared in step 2c
-              # WIZ_ENV=test /wizcli/wizcli auth --id ${WIZCLI_ID_DEMO} --secret ${WIZCLI_SECRET_DEMO}
+              # ${WIZCLI_ID} and ${WIZCLI_SECRET} are variables you declared in step 2c
+              # WIZ_ENV=test /wizcli/wizcli auth --id ${WIZCLI_ID} --secret ${WIZCLI_SECRET}
               WIZ_ENV=test /wizcli/wizcli iac scan --path CreateEC2.yml
               exitCode=$?
 workflows:
@@ -62,9 +62,9 @@ workflows:
   test-build:
      jobs:
         - aws-ecr/build-and-push-image
-          account-url: ${AWS_ECR_ACCOUNT_URL}
-          repo: ${AWS_RESOURCE_NAME_PREFIX}
-          region: ${AWS_DEFAULT_REGION}
+          account-url: $AWS_ECR_ACCOUNT_URL
+          repo: $AWS_RESOURCE_NAME_PREFIX
+          region: $AWS_DEFAULT_REGION
 
 # In your workflow, make sure to trigger the wizcli_scan job you just declared above (it can trigger after a docker_build job):
 workflows:
